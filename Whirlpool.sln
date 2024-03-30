@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Whirlpool", "Whirlpool.csproj", "{76A29E25-2005-48D2-A0A3-C86F7518868D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{76A29E25-2005-48D2-A0A3-C86F7518868D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76A29E25-2005-48D2-A0A3-C86F7518868D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76A29E25-2005-48D2-A0A3-C86F7518868D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76A29E25-2005-48D2-A0A3-C86F7518868D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CBF22CF4-E6C3-4DD6-9106-4EAEAFB728A3}
+	EndGlobalSection
+EndGlobal
