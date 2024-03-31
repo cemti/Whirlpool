@@ -62,25 +62,22 @@ partial class Whirlpool
     protected virtual void Init(byte[] source)
     {
         byte[] bitLength = new byte[32];
-        int bufferBits = 0, bufferPos = 0;
+        int sourceBits = 8 * source.Length, bufferBits = 0, bufferPos = 0;
 
         if (source.Length > 0)
+        {
+            ComputeBitLength();
             Add();
+        }
 
         Finalize();
         return;
 
-        void Add()
+        void ComputeBitLength()
         {
-            int
-                sourceBits = 8 * source.Length,
-                sourcePos = 0,
-                sourceGap = (8 - (sourceBits & 7)) & 7;
+            int value = sourceBits, carry = 0;
 
-            byte b;
-            ulong value = (ulong)sourceBits;
-
-            for (int i = 31, carry = 0; i >= 0; --i)
+            for (int i = 31; i >= 0; --i)
             {
                 carry += (byte)value;
                 bitLength[i] = (byte)carry;
@@ -90,19 +87,29 @@ partial class Whirlpool
                 if (value == 0)
                     break;
             }
+        }
+
+        void Add()
+        {
+            int sourceGap = (8 - (sourceBits & 7)) & 7, sourcePos = 0;
+            byte b;
 
             while (sourceBits > 8)
             {
-                b = (byte)((byte)(source[sourcePos] << sourceGap) | source[sourcePos + 1] >> (8 - sourceGap));
+                b = (byte)(source[sourcePos] << sourceGap | source[sourcePos + 1] >> (8 - sourceGap));
                 ++sourcePos;
 
-                buffer[bufferPos++] |= b;
-                bufferBits += 8;
+                buffer[bufferPos] |= b;
 
-                if (bufferBits == 512)
+                if (bufferBits + 8 == 512)
                 {
                     ProcessBuffer();
                     bufferBits = bufferPos = 0;
+                }
+                else
+                {
+                    ++bufferPos;
+                    bufferBits += 8;
                 }
 
                 buffer[bufferPos] = (byte)(b << 8);
@@ -125,18 +132,18 @@ partial class Whirlpool
             }
             else
             {
-                ++bufferPos;
-                bufferBits += 8;
-                sourceBits -= 8;
-
-                if (bufferBits == 512)
+                if (bufferBits + 8 == 512)
                 {
                     ProcessBuffer();
                     bufferBits = bufferPos = 0;
                 }
+                else
+                {
+                    ++bufferPos;
+                    bufferBits += 8;
+                }
 
                 buffer[bufferPos] = (byte)(b << 8);
-                bufferBits += sourceBits;
             }
         }
 
