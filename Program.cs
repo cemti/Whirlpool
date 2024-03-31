@@ -77,7 +77,7 @@ partial class Whirlpool
                 sourcePos = 0,
                 sourceGap = (8 - (sourceBits & 7)) & 7;
 
-            uint b;
+            byte b;
             ulong value = (ulong)sourceBits;
 
             for (int i = 31, carry = 0; i >= 0; --i)
@@ -93,10 +93,10 @@ partial class Whirlpool
 
             while (sourceBits > 8)
             {
-                b = (uint)((byte)(source[sourcePos] << sourceGap) | source[sourcePos + 1] >> (8 - sourceGap));
+                b = (byte)((byte)(source[sourcePos] << sourceGap) | source[sourcePos + 1] >> (8 - sourceGap));
                 ++sourcePos;
 
-                buffer[bufferPos++] |= (byte)b;
+                buffer[bufferPos++] |= b;
                 bufferBits += 8;
 
                 if (bufferBits == 512)
@@ -112,7 +112,7 @@ partial class Whirlpool
             if (sourceBits > 0)
             {
                 b = (byte)(source[sourcePos] << sourceGap);
-                buffer[bufferPos] |= (byte)b;
+                buffer[bufferPos] |= b;
             }
             else
             {
