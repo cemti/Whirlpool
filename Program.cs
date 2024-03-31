@@ -75,7 +75,6 @@ partial class Whirlpool
             int
                 sourceBits = 8 * source.Length,
                 sourcePos = 0,
-                bufferRem = 0,
                 sourceGap = (8 - (sourceBits & 7)) & 7;
 
             uint b;
@@ -97,8 +96,8 @@ partial class Whirlpool
                 b = (uint)((byte)(source[sourcePos] << sourceGap) | source[sourcePos + 1] >> (8 - sourceGap));
                 ++sourcePos;
 
-                buffer[bufferPos++] |= (byte)(b >> bufferRem);
-                bufferBits += 8 - bufferRem;
+                buffer[bufferPos++] |= (byte)b;
+                bufferBits += 8;
 
                 if (bufferBits == 512)
                 {
@@ -106,30 +105,29 @@ partial class Whirlpool
                     bufferBits = bufferPos = 0;
                 }
 
-                buffer[bufferPos] = (byte)(b << (8 - bufferRem));
-                bufferBits += bufferRem;
+                buffer[bufferPos] = (byte)(b << 8);
                 sourceBits -= 8;
             }
 
             if (sourceBits > 0)
             {
                 b = (byte)(source[sourcePos] << sourceGap);
-                buffer[bufferPos] |= (byte)(b >> bufferRem);
+                buffer[bufferPos] |= (byte)b;
             }
             else
             {
                 b = 0;
             }
 
-            if (bufferRem + sourceBits < 8)
+            if (sourceBits < 8)
             {
                 bufferBits += sourceBits;
             }
             else
             {
                 ++bufferPos;
-                bufferBits += 8 - bufferRem;
-                sourceBits -= 8 - bufferRem;
+                bufferBits += 8;
+                sourceBits -= 8;
 
                 if (bufferBits == 512)
                 {
@@ -137,7 +135,7 @@ partial class Whirlpool
                     bufferBits = bufferPos = 0;
                 }
 
-                buffer[bufferPos] = (byte)(b << (8 - bufferRem));
+                buffer[bufferPos] = (byte)(b << 8);
                 bufferBits += sourceBits;
             }
         }
