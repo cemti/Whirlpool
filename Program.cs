@@ -94,6 +94,22 @@ partial class Whirlpool
             int sourceGap = (8 - (sourceBits & 7)) & 7, sourcePos = 0;
             byte b;
 
+            void ProcessBufferIfFull()
+            {
+                if (bufferBits + 8 == 512)
+                {
+                    ProcessBuffer();
+                    bufferBits = bufferPos = 0;
+                }
+                else
+                {
+                    ++bufferPos;
+                    bufferBits += 8;
+                }
+
+                buffer[bufferPos] = (byte)(b << 8);
+            }
+
             while (sourceBits > 8)
             {
                 b = (byte)(source[sourcePos] << sourceGap | source[sourcePos + 1] >> (8 - sourceGap));
@@ -101,18 +117,7 @@ partial class Whirlpool
 
                 buffer[bufferPos] |= b;
 
-                if (bufferBits + 8 == 512)
-                {
-                    ProcessBuffer();
-                    bufferBits = bufferPos = 0;
-                }
-                else
-                {
-                    ++bufferPos;
-                    bufferBits += 8;
-                }
-
-                buffer[bufferPos] = (byte)(b << 8);
+                ProcessBufferIfFull();
                 sourceBits -= 8;
             }
 
@@ -120,30 +125,11 @@ partial class Whirlpool
             {
                 b = (byte)(source[sourcePos] << sourceGap);
                 buffer[bufferPos] |= b;
-            }
-            else
-            {
-                b = 0;
-            }
 
-            if (sourceBits < 8)
-            {
-                bufferBits += sourceBits;
-            }
-            else
-            {
-                if (bufferBits + 8 == 512)
-                {
-                    ProcessBuffer();
-                    bufferBits = bufferPos = 0;
-                }
+                if (sourceBits < 8)
+                    bufferBits += sourceBits;
                 else
-                {
-                    ++bufferPos;
-                    bufferBits += 8;
-                }
-
-                buffer[bufferPos] = (byte)(b << 8);
+                    ProcessBufferIfFull();
             }
         }
 
