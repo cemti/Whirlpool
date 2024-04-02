@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Buffers.Binary;
+using System.Text;
 
 partial class Whirlpool
 {
@@ -61,33 +62,13 @@ partial class Whirlpool
 
     protected virtual void Init(byte[] source)
     {
-        byte[] bitLength = new byte[32];
         int sourceBits = 8 * source.Length, bufferBits = 0, bufferPos = 0;
 
         if (source.Length > 0)
-        {
-            ComputeBitLength();
             Add();
-        }
 
         Finalize();
         return;
-
-        void ComputeBitLength()
-        {
-            int value = sourceBits, carry = 0;
-
-            for (int i = 31; i >= 0; --i)
-            {
-                carry += (byte)value;
-                bitLength[i] = (byte)carry;
-                carry >>>= 8;
-                value >>>= 8;
-
-                if (value == 0)
-                    break;
-            }
-        }
 
         void Add()
         {
@@ -148,8 +129,9 @@ partial class Whirlpool
 
             if (bufferPos < 32)
                 Array.Fill(buffer, (byte)0, bufferPos, 32 - bufferPos);
-
-            bitLength.CopyTo(buffer, 32);
+            
+            Array.Fill(buffer, (byte)0, 32, 28);
+            BinaryPrimitives.WriteInt32BigEndian(buffer.AsSpan(32 + 28), 8 * source.Length);
 
             ProcessBuffer();
 
