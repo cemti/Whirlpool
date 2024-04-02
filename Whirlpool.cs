@@ -17,8 +17,8 @@ partial class Whirlpool
     protected virtual void ProcessBuffer()
     {
         ulong[]
-            K = new ulong[8],
-            L = new ulong[8],
+            k = new ulong[8],
+            l = new ulong[8],
             block = new ulong[8],
             state = new ulong[8];
 
@@ -29,32 +29,32 @@ partial class Whirlpool
         for (int i = 0; i < 8; ++i)
         {
             state[i] = block[i] ^ _hash[i];
-            K[i] = _hash[i];
+            k[i] = _hash[i];
         }
 
         for (int r = 0; r < Rounds; ++r)
         {
             for (int i = 0; i < 8; ++i)
             {
-                L[i] = 0;
+                l[i] = 0;
 
                 for (int t = 0; t < 8; ++t)
-                    L[i] ^= C[t, (byte)(K[(i - t) & 7] >> (56 - 8 * t))];
+                    l[i] ^= C[t, (byte)(k[(i - t) & 7] >> (56 - 8 * t))];
             }
 
-            L.CopyTo(K, 0);
+            l.CopyTo(k, 0);
 
-            K[0] ^= Rc[r];
+            k[0] ^= Rc[r];
 
             for (int i = 0; i < 8; ++i)
             {
-                L[i] = K[i];
+                l[i] = k[i];
 
                 for (int t = 0; t < 8; ++t)
-                    L[i] ^= C[t, (byte)(state[(i - t) & 7] >> (56 - 8 * t))];
+                    l[i] ^= C[t, (byte)(state[(i - t) & 7] >> (56 - 8 * t))];
             }
 
-            L.CopyTo(state, 0);
+            l.CopyTo(state, 0);
         }
 
         for (int i = 0; i < 8; ++i)
