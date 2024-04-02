@@ -1,20 +1,22 @@
 ﻿using System.Buffers.Binary;
 using System.Text;
 
-partial class Whirlpool
+sealed partial class Whirlpool
 {
     private readonly byte[] _digest = new byte[DigestBytes];
-    protected readonly byte[] _buffer = new byte[64];
-    protected readonly ulong[] _hash = new ulong[8];
+    private readonly byte[] _buffer = new byte[64];
+    private readonly ulong[] _hash = new ulong[8];
 
-    public IReadOnlyList<byte> Digest => _digest.AsReadOnly();
+    private Whirlpool() { }
 
-    public Whirlpool(string input = "")
+    public static byte[] Hash(string input)
     {
-        Init(Encoding.ASCII.GetBytes(input));
+        Whirlpool instance = new();
+        instance.Init(Encoding.ASCII.GetBytes(input));
+        return instance._digest;
     }
 
-    protected virtual void ProcessBuffer()
+    private void ProcessBuffer()
     {
         ulong[]
             k = new ulong[8],
@@ -61,7 +63,7 @@ partial class Whirlpool
             _hash[i] ^= state[i] ^ block[i];
     }
 
-    protected virtual void Init(byte[] source)
+    private void Init(byte[] source)
     {
         int sourceBits = 8 * source.Length, bufferBits = 0, bufferPos = 0;
 

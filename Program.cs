@@ -1,4 +1,4 @@
 ﻿string input = Console.ReadLine()!;
-byte[] digest = [.. new Whirlpool(input).Digest];
+byte[] digest = Whirlpool.Hash(input);
 string hex = BitConverter.ToString(digest).Replace("-", "");
 Console.WriteLine(hex);
