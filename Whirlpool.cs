@@ -66,12 +66,6 @@ partial class Whirlpool
         int sourceBits = 8 * source.Length, bufferBits = 0, bufferPos = 0;
 
         if (source.Length > 0)
-            Add();
-
-        Finalize();
-        return;
-
-        void Add()
         {
             int sourceGap = (8 - (sourceBits & 7)) & 7, sourcePos = 0;
             byte b;
@@ -115,30 +109,27 @@ partial class Whirlpool
             }
         }
 
-        void Finalize()
+        _buffer[bufferPos++] |= (byte)(0x80 >>> (bufferBits & 7));
+
+        if (bufferPos > 32)
         {
-            _buffer[bufferPos++] |= (byte)(0x80 >>> (bufferBits & 7));
-
-            if (bufferPos > 32)
-            {
-                if (bufferPos < 64)
-                    Array.Fill(_buffer, (byte)0, bufferPos, 64 - bufferPos);
-
-                ProcessBuffer();
-                bufferPos = 0;
-            }
-
-            if (bufferPos < 32)
-                Array.Fill(_buffer, (byte)0, bufferPos, 32 - bufferPos);
-            
-            Array.Fill(_buffer, (byte)0, 32, 28);
-            BinaryPrimitives.WriteInt32BigEndian(_buffer.AsSpan(32 + 28), 8 * source.Length);
+            if (bufferPos < 64)
+                Array.Fill(_buffer, (byte)0, bufferPos, 64 - bufferPos);
 
             ProcessBuffer();
-
-            for (int i = 0; i < 8; ++i)
-                for (int t = 0; t < 8; ++t)
-                    _digest[8 * i + t] = (byte)(_hash[i] >> (56 - 8 * t));
+            bufferPos = 0;
         }
+
+        if (bufferPos < 32)
+            Array.Fill(_buffer, (byte)0, bufferPos, 32 - bufferPos);
+
+        Array.Fill(_buffer, (byte)0, 32, 28);
+        BinaryPrimitives.WriteInt32BigEndian(_buffer.AsSpan(32 + 28), 8 * source.Length);
+
+        ProcessBuffer();
+
+        for (int i = 0; i < 8; ++i)
+            for (int t = 0; t < 8; ++t)
+                _digest[8 * i + t] = (byte)(_hash[i] >> (56 - 8 * t));
     }
 }
