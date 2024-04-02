@@ -65,30 +65,30 @@ sealed partial class Whirlpool
 
     private void Init(byte[] source)
     {
-        int sourceBits = 8 * source.Length, bufferBits = 0, bufferPos = 0;
+        int sourceBytes = source.Length, bufferBytes = 0, bufferPos = 0;
 
-        if (source.Length > 0)
+        if (sourceBytes > 0)
         {
-            int sourceGap = (8 - (sourceBits & 7)) & 7, sourcePos = 0;
+            int sourceGap = (8 - (8 * sourceBytes & 7)) & 7, sourcePos = 0;
             byte b;
 
             void ProcessBufferIfFull()
             {
-                if (bufferBits + 8 == 512)
+                if (bufferBytes == 63)
                 {
                     ProcessBuffer();
-                    bufferBits = bufferPos = 0;
+                    bufferBytes = bufferPos = 0;
                 }
                 else
                 {
                     ++bufferPos;
-                    bufferBits += 8;
+                    ++bufferBytes;
                 }
 
                 _buffer[bufferPos] = (byte)(b << 8);
             }
 
-            while (sourceBits > 8)
+            while (sourceBytes > 1)
             {
                 b = (byte)(source[sourcePos] << sourceGap | source[sourcePos + 1] >> (8 - sourceGap));
                 ++sourcePos;
@@ -96,22 +96,22 @@ sealed partial class Whirlpool
                 _buffer[bufferPos] |= b;
 
                 ProcessBufferIfFull();
-                sourceBits -= 8;
+                --sourceBytes;
             }
 
-            if (sourceBits > 0)
+            if (sourceBytes > 0)
             {
                 b = (byte)(source[sourcePos] << sourceGap);
                 _buffer[bufferPos] |= b;
 
-                if (sourceBits < 8)
-                    bufferBits += sourceBits;
+                if (sourceBytes < 1)
+                    bufferBytes += sourceBytes;
                 else
                     ProcessBufferIfFull();
             }
         }
 
-        _buffer[bufferPos++] |= (byte)(0x80 >>> (bufferBits & 7));
+        _buffer[bufferPos++] |= (byte)(0x80 >>> (8 * bufferBytes & 7));
 
         if (bufferPos > 32)
         {
