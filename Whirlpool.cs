@@ -30,11 +30,10 @@ sealed partial class Whirlpool
             state = new ulong[8];
 
         for (int i = 0; i < 8; ++i)
+        {
             for (int t = 0; t < 8; ++t)
                 block[i] ^= (ulong)_buffer[8 * i + t] << (56 - 8 * t);
 
-        for (int i = 0; i < 8; ++i)
-        {
             state[i] = block[i] ^ _hash[i];
             k[i] = _hash[i];
         }
@@ -49,10 +48,8 @@ sealed partial class Whirlpool
                     l[i] ^= C[t, (byte)(k[(i - t) & 7] >> (56 - 8 * t))];
             }
 
+            l[0] ^= Rc[r];
             l.CopyTo(k, 0);
-
-            k[0] ^= Rc[r];
-            l[0] = k[0];
 
             for (int i = 0; i < 8; ++i)
                 for (int t = 0; t < 8; ++t)
