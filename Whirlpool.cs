@@ -3,7 +3,6 @@ using System.Text;
 
 sealed partial class Whirlpool
 {
-    private readonly byte[] _digest = new byte[DigestBytes];
     private readonly byte[] _buffer = new byte[64];
     private readonly ulong[] _hash = new ulong[8];
 
@@ -13,7 +12,13 @@ sealed partial class Whirlpool
     {
         Whirlpool instance = new();
         instance.Init(Encoding.ASCII.GetBytes(input));
-        return instance._digest;
+
+        return [.. instance._hash.SelectMany(x =>
+        {
+            var arr = new byte[8];
+            BinaryPrimitives.WriteUInt64BigEndian(arr, x);
+            return arr;
+        })];
     }
 
     private void ProcessBuffer()
@@ -126,9 +131,5 @@ sealed partial class Whirlpool
         BinaryPrimitives.WriteInt32BigEndian(_buffer.AsSpan(32 + 28), 8 * source.Length);
 
         ProcessBuffer();
-
-        for (int i = 0; i < 8; ++i)
-            for (int t = 0; t < 8; ++t)
-                _digest[8 * i + t] = (byte)(_hash[i] >> (56 - 8 * t));
     }
 }
