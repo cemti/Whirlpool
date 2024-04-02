@@ -47,14 +47,11 @@ sealed partial class Whirlpool
             l.CopyTo(k, 0);
 
             k[0] ^= Rc[r];
+            l[0] = k[0];
 
             for (int i = 0; i < 8; ++i)
-            {
-                l[i] = k[i];
-
                 for (int t = 0; t < 8; ++t)
                     l[i] ^= C[t, (byte)(state[(i - t) & 7] >> (56 - 8 * t))];
-            }
 
             l.CopyTo(state, 0);
         }
